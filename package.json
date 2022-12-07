@@ -16,11 +16,11 @@
   "license": "MIT",
   "description": "Display a summary of eslint warnings",
   "dependencies": {
-    "@types/node": "^18.11.11",
     "import-cwd": "^3.0.0"
   },
   "devDependencies": {
     "@types/eslint": "^8.4.10",
+    "@types/node": "^18.11.11",
     "typescript": "^4.9.3"
   },
   "repository": {
