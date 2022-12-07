@@ -9,8 +9,6 @@ const argv = await yargs(hideBin(process.argv))
   .usage("$0 <pattern>")
   .example("$0 ./src", "Count eslint errors in the current folder").argv;
 
-const {
-  _: [pattern],
-} = argv;
+const { _: patterns } = argv;
 
-await main(String(pattern));
+await main(patterns.map((p) => p.toString()));
