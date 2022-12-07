@@ -1,7 +1,8 @@
 import type { ESLint } from "eslint";
 import importCwd from "import-cwd";
+import yargs from "yargs";
 
-export async function main() {
+export async function main(pattern: string) {
   const { ESLint } = importCwd("eslint") as { ESLint: { new (): ESLint } };
   const eslint = new ESLint();
 

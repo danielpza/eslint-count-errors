@@ -12,9 +12,16 @@ npm install --global https://github.com/danielpza/eslint-count-errors.git
 
 ## Usage
 
-```sh
-cd go/to/project/with/eslint/installed
-eslint-count-errors ./src
+```
+$ eslint-count-errors --help
+eslint-count-errors <pattern>
+
+Options:
+  --help     Show help                                                 [boolean]
+  --version  Show version number                                       [boolean]
+
+Examples:
+  eslint-count-errors ./src  Count eslint errors in the current folder
 ```
 
 Example output:
