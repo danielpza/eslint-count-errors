@@ -1,23 +1,49 @@
-import type { ESLint } from "eslint";
+import { relative } from "node:path";
+import type { ESLint, Linter } from "eslint";
 import importCwd from "import-cwd";
+import { groupBy, sortBy } from "lodash-es";
 
-export async function main(pattern: string[]) {
+interface Options {
+  byFile: boolean;
+}
+
+function sortMessages(messages: Linter.LintMessage[]) {
+  const byRuleId = groupBy(messages, "ruleId");
+
+  const sorted = sortBy(Object.entries(byRuleId), "1.length");
+
+  return sorted.map(([ruleId, messages]) => ({ ruleId, messages }));
+}
+
+export async function main(pattern: string[], options: Options) {
   const { ESLint } = importCwd("eslint") as { ESLint: { new (): ESLint } };
   const eslint = new ESLint();
 
   const results = await eslint.lintFiles(pattern);
 
-  const ruleCount: Record<string, number> = {};
+  if (options.byFile) {
+    let out = "";
 
-  for (const result of results) {
-    for (const message of result.messages) {
-      if (!message.ruleId) continue;
-      ruleCount[message.ruleId] ??= 0;
-      ruleCount[message.ruleId] += 1;
+    for (const { filePath, messages } of sortBy(results, "messages.length")) {
+      const sortedMessages = sortMessages(messages);
+      out += `${relative(process.cwd(), filePath)}:\n`;
+      for (const { ruleId, messages } of sortedMessages) {
+        out += `${String(messages.length).padStart(6)} ${ruleId}\n`;
+      }
+      out += "\n";
     }
+
+    console.log(out);
+  } else {
+    const sortedMessages = sortMessages(
+      results.flatMap((result) => result.messages)
+    );
+
+    let out = "";
+    for (const { ruleId, messages } of sortedMessages) {
+      out += `${String(messages.length).padStart(4)} ${ruleId}\n`;
+    }
+
+    console.log(out);
   }
-
-  const sortedRules = Object.entries(ruleCount).sort(([, a], [, b]) => a - b);
-
-  console.log(sortedRules.map(([v, k]) => `${v.padStart(4)} ${k}`).join("\n"));
 }
