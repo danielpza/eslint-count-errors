@@ -4,8 +4,8 @@ import importCwd from "import-cwd";
 import { groupBy, sortBy } from "lodash-es";
 
 interface Options {
-  byFile: boolean;
   errorsOnly: boolean;
+  format: "count" | "by-file" | "eslint-warn";
 }
 
 function sortMessages(
@@ -27,7 +27,7 @@ export async function main(pattern: string[], options: Options) {
 
   const results = await eslint.lintFiles(pattern);
 
-  if (options.byFile) {
+  if (options.format === "by-file") {
     let out = "";
 
     for (const { filePath, messages } of sortBy(results, "messages.length")) {
@@ -48,7 +48,13 @@ export async function main(pattern: string[], options: Options) {
 
     let out = "";
     for (const { ruleId, messages } of sortedMessages) {
-      out += `${String(messages.length).padStart(4)} ${ruleId}\n`;
+      if (options.format === "count")
+        out += `${String(messages.length).padStart(4)} ${ruleId}\n`;
+      else {
+        out += `\
+"${ruleId}": "warn", // ${messages.length}
+`;
+      }
     }
 
     console.log(out);

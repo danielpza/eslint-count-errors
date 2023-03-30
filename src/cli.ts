@@ -12,16 +12,17 @@ const argv = await yargs(hideBin(process.argv))
     description: "Only check for errors, ingore warnings",
     default: false,
   })
-  .option("by-file", {
-    type: "boolean",
-    description: "Show the summary grouped by file",
-    default: false,
+  .option("format", {
+    type: "string",
+    description: "Specifies how to display output summary",
+    default: "count",
+    choices: ["count", "by-file", "eslint-warn"],
   })
   .example("$0 ./src", "Count eslint errors in the current folder").argv;
 
-const { _: patterns, byFile, errorsOnly } = argv;
+const { _: patterns, format, errorsOnly } = argv;
 
 await main(
   patterns.map((p) => p.toString()),
-  { byFile, errorsOnly }
+  { errorsOnly, format: format as any }
 );
