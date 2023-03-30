@@ -32,6 +32,7 @@ export async function main(pattern: string[], options: Options) {
 
     for (const { filePath, messages } of sortBy(results, "messages.length")) {
       const sortedMessages = sortMessages(messages, options);
+      if (sortedMessages.length === 0) continue;
       out += `${relative(process.cwd(), filePath)}:\n`;
       for (const { ruleId, messages } of sortedMessages) {
         out += `${String(messages.length).padStart(6)} ${ruleId}\n`;
