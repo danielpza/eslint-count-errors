@@ -5,9 +5,15 @@ import { groupBy, sortBy } from "lodash-es";
 
 interface Options {
   byFile: boolean;
+  errorsOnly: boolean;
 }
 
-function sortMessages(messages: Linter.LintMessage[]) {
+function sortMessages(
+  messages: Linter.LintMessage[],
+  options: { errorsOnly: boolean }
+) {
+  if (options.errorsOnly)
+    messages = messages.filter((message) => message.severity === 2);
   const byRuleId = groupBy(messages, "ruleId");
 
   const sorted = sortBy(Object.entries(byRuleId), "1.length");
@@ -25,7 +31,7 @@ export async function main(pattern: string[], options: Options) {
     let out = "";
 
     for (const { filePath, messages } of sortBy(results, "messages.length")) {
-      const sortedMessages = sortMessages(messages);
+      const sortedMessages = sortMessages(messages, options);
       out += `${relative(process.cwd(), filePath)}:\n`;
       for (const { ruleId, messages } of sortedMessages) {
         out += `${String(messages.length).padStart(6)} ${ruleId}\n`;
@@ -36,7 +42,8 @@ export async function main(pattern: string[], options: Options) {
     console.log(out);
   } else {
     const sortedMessages = sortMessages(
-      results.flatMap((result) => result.messages)
+      results.flatMap((result) => result.messages),
+      options
     );
 
     let out = "";
